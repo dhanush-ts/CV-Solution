@@ -2,36 +2,29 @@ import cv2
 import face_recognition
 import pickle
 import os
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import db
-from firebase_admin import  storage
-
-cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred, {
-    'databaseURL': "",
-    'storageBucket': ""
-})
 
 
 # Importing student images
-folderPath = 'Images'
+folderPath = '../Images untrained'
 pathList = os.listdir(folderPath)
 print(pathList)
 imgList = []
 studentIds = []
 for path in pathList:
-    imgList.append(cv2.imread(os.path.join(folderPath, path)))
-    studentIds.append(os.path.splitext(path)[0])
+    img = cv2.imread(os.path.join(folderPath, path))
+    faceCurFrame = face_recognition.face_locations(img)
+    if len(faceCurFrame) > 0:
+        # Get the coordinates of the first face
+        y1, x2, y2, x1 = faceCurFrame[0]
+
+        # Crop the face from the image
+        face_img = img[y1:y2, x1:x2]
+        imgList.append(face_img)
+        cv2.imwrite("../New Images/"+path, face_img)
+        studentIds.append(os.path.splitext(path)[0])
 
     fileName = f'{folderPath}/{path}'
-    bucket = storage.bucket()
-    blob = bucket.blob(fileName)
-    blob.upload_from_filename(fileName)
 
-
-    # print(path)
-    # print(os.path.splitext(path)[0])
 print(studentIds)
 
 
