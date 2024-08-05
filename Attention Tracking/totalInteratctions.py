@@ -4,6 +4,7 @@ import cv2
 import cvzone
 import math
 from sort import *
+import time
 
 video_path = 'WhatsApp Video 2024-08-05 at 10.01.12_281b1a61.mp4'  # Replace with your video file path or 0 for webcam
 cap = cv2.VideoCapture(video_path)
@@ -11,13 +12,14 @@ cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1080)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 model = YOLO('./run3/train/weights/best.pt')
-
+prev = 0
 classNames = {
     0: 'hand-raising',
     1: 'reading',
     2: 'writing'
 }
-
+start_time = time.time()
+arr = []
 # Tracking
 tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
 # totalCount = []
@@ -62,7 +64,16 @@ while True:
         # cvzone.putTextRect(img, f' {int(id)}', (max(0, x1), max(35, y1)),
         #                    scale=2, thickness=3, offset=10)
         num_inter = max(num_inter, int(id))
-        print(num_inter)
+    print(num_inter,arr)
+
+    elapsed_time = time.time() - start_time
+    if elapsed_time > 5:
+        print(f"Maximum interactions in last 30 seconds: {num_inter}")
+        arr.append(num_inter-prev)
+        tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
+        prev = num_inter
+        start_time = time.time()
+
 
     cv2.imshow("Image", img)
     cv2.waitKey(1)
