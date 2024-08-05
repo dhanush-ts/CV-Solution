@@ -9,7 +9,7 @@ cap = cv2.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
 
-imgBackground = cv2.imread('../Resources/Bg.png')
+imgBackground = cv2.imread('../Resources/photoBooth.png')
 
 # Importing the mode images into a list
 folderModePath = '../Resources/Modes'
@@ -43,7 +43,7 @@ while True:
     faceCurFrame = face_recognition.face_locations(imgS)
     encodeCurFrame = face_recognition.face_encodings(imgS, faceCurFrame)
 
-    imgBackground[235:235 + 480, 41:41 + 640] = img
+    imgBackground[82:82 + 480, 40:40 + 640] = img
 
     if faceCurFrame:
         for encodeFace, faceLoc in zip(encodeCurFrame, faceCurFrame):
@@ -61,9 +61,10 @@ while True:
                 # print(studentIds[matchIndex])
                 y1, x2, y2, x1 = faceLoc
                 y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
-                bbox = 41 + x1, 235 + y1, x2 - x1, y2 - y1
+                bbox = 40 + x1, 82 + y1, x2 - x1, y2 - y1
                 imgBackground = cvzone.cornerRect(imgBackground, bbox, rt=0)
                 print(studentIds[matchIndex])
+                cv2.putText(imgBackground, studentIds[matchIndex], (27,630), 1, 2, (255,0,255), 2)
 
     cv2.imshow("Face Attendance", imgBackground)
     cv2.waitKey(1)
