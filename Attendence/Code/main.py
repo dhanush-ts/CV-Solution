@@ -4,6 +4,40 @@ import cv2
 import face_recognition
 import cvzone
 import numpy as np
+import requests
+
+url = "http://localhost:8000/api/user/login/"
+password = "Changeme@123"
+login = "http://localhost:8000/api/student/attendance/"
+
+def dataGet(rol):
+    data = {
+        "id": str(rol),
+        "user_type": "student",
+        "password": password
+    }
+
+    response = requests.post(url, json=data)
+
+    # Print the response status code and content
+
+
+    token = response.json()['token']
+
+    headers = {
+        "Authorization": f"Bearer {token}",  # Replace with your actual token
+        "Content-Type": "application/json"
+    }
+
+    print(headers)
+
+    data = {
+        "rollno": rol
+    }
+
+    response = requests.post(login, json=data , headers=headers)
+    print(f"Status Code: {response.status_code}")
+
 
 cap = cv2.VideoCapture(0)
 cap.set(3, 640)
@@ -64,6 +98,7 @@ while True:
                 bbox = 40 + x1, 82 + y1, x2 - x1, y2 - y1
                 imgBackground = cvzone.cornerRect(imgBackground, bbox, rt=0)
                 print(studentIds[matchIndex])
+                dataGet(studentIds[matchIndex])
                 cv2.putText(imgBackground, studentIds[matchIndex], (27,630), 1, 2, (255,0,255), 2)
 
     cv2.imshow("Face Attendance", imgBackground)
